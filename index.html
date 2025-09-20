@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jarvis R2 Mega - Chat Interface</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #00b4d8;
+            --secondary: #0077b6;
+            --dark: #0f2027;
+            --medium: #203a43;
+            --light: #2c5364;
+            --text: #caf0f8;
+            --accent: #90e0ef;
+            --error: #e63946;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark), var(--medium), var(--light));
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+        }
+
+        /* Header Styles */
+        .header {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background: rgba(230, 57, 70, 0.2);
+            color: var(--text);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(230, 57, 70, 0.4);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+
+        .sidebar-title {
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: var(--text);
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-btn:hover {
+            background: rgba(0, 180, 216, 0.2);
+        }
+
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 15px;
+            line-height: 1.4;
+            position: relative;
+        }
+
+        .user-message {
+            background: rgba(0, 180, 216, 0.3);
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .jarvis-message {
+            background: rgba(255, 255, 255, 0.1);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .chat-input-area {
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .send-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            transform: scale(1.05);
+        }
+
+        /* Auth Screen */
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-logo {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .auth-title {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-subtitle {
+            color: var(--accent);
+            font-size: 1rem;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 0.9rem;
+            color: var(--accent);
+        }
+
+        .form-input {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .auth-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .auth-btn:hover {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--accent);
+            font-size: 0.9rem;
+        }
+
+        .auth-switch {
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: var(--error);
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                padding: 15px;
+            }
+            
+            .message {
+                max-width: 85%;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .user-controls {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Screen -->
+    <div class="auth-container" id="authScreen">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="fas fa-robot"></i>
+            </div>
+            <h1 class="auth-title">Jarvis R2 Mega</h1>
+            <p class="auth-subtitle">Sign in to start chatting with your AI assistant</p>
+        </div>
+        
+        <div class="auth-form" id="loginForm">
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" class="form-input" id="loginUsername" placeholder="Enter your username">
+                <div class="error-message" id="loginUsernameError">Please enter a valid username</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password">
+                <div class="error-message" id="loginPasswordError">Please enter your password</div>
+            </div>
+            
+            <button class="auth-btn" id="loginBtn">Sign In</button>
+            
+            <div class="auth-footer">
+                Don't have an account? <span class="auth-switch" id="showRegister">Register</span>
+            </div>
+        </div>
+        
+        <div class="auth-form" id="registerForm" style="display: none;">
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" class="form-input" id="registerUsername" placeholder="Choose a username">
+                <div class="error-message" id="registerUsernameError">Username must be at least 3 characters</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="registerEmail" placeholder="Enter your email">
+                <div class="error-message" id="registerEmailError">Please enter a valid email</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="registerPassword" placeholder="Create a password">
+                <div class="error-message" id="registerPasswordError">Password must be at least 6 characters</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Confirm Password</label>
+                <input type="password" class="form-input" id="registerConfirmPassword" placeholder="Confirm your password">
+                <div class="error-message" id="registerConfirmError">Passwords do not match</div>
+            </div>
+            
+            <button class="auth-btn" id="registerBtn">Create Account</button>
+            
+            <div class="auth-footer">
+                Already have an account? <span class="auth-switch" id="showLogin">Sign In</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div class="container" id="appContainer" style="display: none;">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="logo-text">Jarvis R2 Mega</div>
+            </div>
+            
+            <div class="user-controls">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <span id="usernameDisplay">User</span>
+                </div>
+                <button class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">
+                        <i class="fas fa-bolt"></i>
+                        Quick Actions
+                    </h3>
+                    <div class="quick-actions">
+                        <button class="action-btn" data-command="open google">
+                            <i class="fab fa-google"></i>
+                            Open Google
+                        </button>
+                        <button class="action-btn" data-command="open youtube">
+                            <i class="fab fa-youtube"></i>
+                            Open YouTube
+                        </button>
+                        <button class="action-btn" data-command="open github">
+                            <i class="fab fa-github"></i>
+                            Open GitHub
+                        </button>
+                        <button class="action-btn" data-command="open github">
+                            <i class="fab fa-mail"></i>
+                            Open mail
+                        </button>
+                        <button class="action-btn" data-command="open github">
+                            <i class="fab fa-instagram"></i>
+                            Open instagram
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">
+                        <i class="fas fa-code"></i>
+                        Code Help
+                    </h3>
+                    <div class="quick-actions">
+                        <button class="action-btn" data-command="html help">
+                            <i class="fab fa-html5"></i>
+                            HTML Assistance
+                        </button>
+                        <button class="action-btn" data-command="css help">
+                            <i class="fab fa-css3"></i>
+                            CSS Assistance
+                        </button>
+                        <button class="action-btn" data-command="js help">
+                            <i class="fab fa-js"></i>
+                            JavaScript Help
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">
+                        <i class="fas fa-desktop"></i>
+                        System Apps
+                    </h3>
+                    <div class="quick-actions">
+                        <button class="action-btn" data-command="open calculator">
+                            <i class="fas fa-calculator"></i>
+                            Calculator
+                        </button>
+                        <button class="action-btn" data-command="open calendar">
+                            <i class="fas fa-calendar"></i>
+                            Calendar
+                        </button>
+                        <button class="action-btn" data-command="open explorer">
+                            <i class="fas fa-folder"></i>
+                            File Explorer
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-area">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message jarvis-message">
+                        Hello! I'm Farhat R2 Mega. How can I assist you today?
+                        <div class="message-time">Just now</div>
+                    </div>
+                    <div class="message jarvis-message">
+                        You can ask me to open websites, help with code, or launch applications.
+                        <div class="message-time">Just now</div>
+                    </div>
+                </div>
+                
+                <div class="chat-input-area">
+                    <input type="text" class="chat-input" id="userInput" placeholder="Type your message here...">
+                    <button class="send-btn" id="sendButton">
+                        <i class="fas fa-paper-plane"></i>
+                        Send
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const authScreen = document.getElementById('authScreen');
+            const appContainer = document.getElementById('appContainer');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const showRegister = document.getElementById('showRegister');
+            const showLogin = document.getElementById('showLogin');
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const userAvatar = document.getElementById('userAvatar');
+            const usernameDisplay = document.getElementById('usernameDisplay');
+            const chatMessages = document.getElementById('chatMessages');
+            const userInput = document.getElementById('userInput');
+            const sendButton = document.getElementById('sendButton');
+            const actionButtons = document.querySelectorAll('.action-btn');
+            
+            // User data (in a real app, this would be stored in a database)
+            const users = JSON.parse(localStorage.getItem('jarvis_users')) || [];
+            let currentUser = null;
+            
+            // Check if user is already logged in
+            const loggedInUser = localStorage.getItem('jarvis_currentUser');
+            if (loggedInUser) {
+                currentUser = JSON.parse(loggedInUser);
+                showApp();
+            }
+            
+            // Show register form
+            showRegister.addEventListener('click', function() {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+            });
+            
+            // Show login form
+            showLogin.addEventListener('click', function() {
+                registerForm.style.display = 'none';
+                loginForm.style.display = 'block';
+            });
+            
+            // Login functionality
+            loginBtn.addEventListener('click', function() {
+                const username = document.getElementById('loginUsername').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                if (!username) {
+                    document.getElementById('loginUsernameError').style.display = 'block';
+                    return;
+                } else {
+                    document.getElementById('loginUsernameError').style.display = 'none';
+                }
+                
+                if (!password) {
+                    document.getElementById('loginPasswordError').style.display = 'block';
+                    return;
+                } else {
+                    document.getElementById('loginPasswordError').style.display = 'none';
+                }
+                
+                // Check if user exists
+                const user = users.find(u => u.username === username && u.password === password);
+                if (user) {
+                    currentUser = user;
+                    localStorage.setItem('jarvis_currentUser', JSON.stringify(user));
+                    showApp();
+                } else {
+                    alert('Invalid username or password');
+                }
+            });
+            
+            // Register functionality
+            registerBtn.addEventListener('click', function() {
+                const username = document.getElementById('registerUsername').value;
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                const confirmPassword = document.getElementById('registerConfirmPassword').value;
+                
+                let isValid = true;
+                
+                if (username.length < 3) {
+                    document.getElementById('registerUsernameError').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('registerUsernameError').style.display = 'none';
+                }
+                
+                if (!email.includes('@')) {
+                    document.getElementById('registerEmailError').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('registerEmailError').style.display = 'none';
+                }
+                
+                if (password.length < 6) {
+                    document.getElementById('registerPasswordError').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('registerPasswordError').style.display = 'none';
+                }
+                
+                if (password !== confirmPassword) {
+                    document.getElementById('registerConfirmError').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('registerConfirmError').style.display = 'none';
+                }
+                
+                if (!isValid) return;
+                
+                // Check if username already exists
+                if (users.some(u => u.username === username)) {
+                    alert('Username already exists');
+                    return;
+                }
+                
+                // Create new user
+                const newUser = {
+                    username,
+                    email,
+                    password,
+                    firstLetter: username.charAt(0).toUpperCase()
+                };
+                
+                users.push(newUser);
+                localStorage.setItem('jarvis_users', JSON.stringify(users));
+                
+                currentUser = newUser;
+                localStorage.setItem('jarvis_currentUser', JSON.stringify(newUser));
+                
+                showApp();
+            });
+            
+            // Logout functionality
+            logoutBtn.addEventListener('click', function() {
+                localStorage.removeItem('jarvis_currentUser');
+                currentUser = null;
+                authScreen.style.display = 'block';
+                appContainer.style.display = 'none';
+                
+                // Clear login form
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
+            });
+            
+            // Send message functionality
+            sendButton.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // Quick action buttons
+            actionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const command = this.getAttribute('data-command');
+                    userInput.value = command;
+                    sendMessage();
+                });
+            });
+            
+            // Show the app interface
+            function showApp() {
+                authScreen.style.display = 'none';
+                appContainer.style.display = 'flex';
+                
+                // Update user info
+                userAvatar.textContent = currentUser.firstLetter;
+                usernameDisplay.textContent = currentUser.username;
+            }
+            
+            // Send a message
+            function sendMessage() {
+                const message = userInput.value.trim();
+                if (message === '') return;
+                
+                // Add user message to chat
+                addMessage(message, true);
+                
+                // Process the command
+                processCommand(message);
+                
+                // Clear input
+                userInput.value = '';
+            }
+            
+            // Add message to chat
+            function addMessage(text, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(isUser ? 'user-message' : 'jarvis-message');
+                messageDiv.textContent = text;
+                
+                const timeDiv = document.createElement('div');
+                timeDiv.classList.add('message-time');
+                timeDiv.textContent = new Date().toLocaleTimeString();
+                
+                messageDiv.appendChild(timeDiv);
+                chatMessages.appendChild(messageDiv);
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // Process commands
+            function processCommand(command) {
+                const lowerCommand = command.toLowerCase();
+                let response = '';
+                
+                // Greetings
+                if (lowerCommand.includes('hello') || lowerCommand.includes('hi')) {
+                    response = `Hello ${currentUser.username}! How can I assist you today?`;
+                } 
+                
+                // Help
+                else if (lowerCommand.includes('help') || lowerCommand.includes('what can you do')) {
+                    response = 'I can open websites, help with code, and launch applications. Try saying "Open Google" or "What time is it?"';
+                }
+                
+                // Open websites
+                else if (lowerCommand.includes('open google')) {
+                    window.open('https://www.google.com', '_blank');
+                    response = 'Opening Google in a new tab';
+                }
+                else if (lowerCommand.includes('open youtube')) {
+                    window.open('https://www.youtube.com', '_blank');
+                    response = 'Opening YouTube in a new tab';
+                }
+                else if (lowerCommand.includes('open github')) {
+                    window.open('https://www.github.com', '_blank');
+                    response = 'Opening GitHub in a new tab';
+                }
+                else if (lowerCommand.includes('open stack overflow')) {
+                    window.open('https://stackoverflow.com', '_blank');
+                    response = 'Opening Stack Overflow in a new tab';
+                }
+                else if (lowerCommand.includes('open instagram')) {
+                    window.open('https://www.instagram.com', '_blank');
+                    response = 'Opening instagram in a new tab';
+                }else if (lowerCommand.includes('open google')) {
+                    window.open('mail.google.com', '_blank');
+                    response = 'Opening mail in a new tab';
+                }                
+                // Time
+                else if (lowerCommand.includes('time')) {
+                    const now = new Date();
+                    const time = now.toLocaleTimeString();
+                    response = `The current time is ${time}`;
+                }
+                
+                // Code help
+                else if (lowerCommand.includes('html')) {
+                    response = 'HTML is the standard markup language for creating web pages. I can help you with HTML structure, tags, and best practices.';
+                }
+                else if (lowerCommand.includes('css')) {
+                    response = 'CSS is used for styling web pages. I can help with layout, responsive design, and CSS frameworks.';
+                }
+                else if (lowerCommand.includes('javascript') || lowerCommand.includes('js')) {
+                    response = 'JavaScript adds interactivity to web pages. I can help with DOM manipulation, events, and JS frameworks.';
+                }
+                
+                // Default response
+                else {
+                    response = "I'm not sure how to help with that. Try asking me to open a website or help with code.";
+                }
+                
+                // Add response with a slight delay to simulate thinking
+                setTimeout(() => {
+                    addMessage(response);
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>
